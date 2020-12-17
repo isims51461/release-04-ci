@@ -1,0 +1,15 @@
+---
+ - hosts: k8s
+   become_user: root
+   become_method: sudo
+   tasks:
+           - name: Delete deployment file if it exists
+             command: kubectl delete deployment deployment-app
+             ignore_errors: yes
+           - name: Deploy App
+             command: kubectl create -f deploy.yml
+           - name: Delete Service if it exists
+             command: kubectl delete service deployment-app-service
+             ignore_errors: yes
+           - name: Deploy Service
+             command: kubectl create -f service.yml
