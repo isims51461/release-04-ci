@@ -1,15 +1,42 @@
-pipeline{
-     agent any
-     stages{
-          stage('SCM Checkout'){
-               steps{
-                    git 'https://github.com/isims51461/release-04'
-               }
-          }
-          stage('Execute Ansible Playbook'){
-              steps{
-                  ansiblePlaybook credentialsId: 'ansible_id', disableHostKeyChecking: true, installation: 'ansible', inventory: 'hosts', playbook: 'release-04.yml'
-         }
-       }
-     }
+pipeline {
+    agent any
+    triggers {
+  pollSCM '* * * * *'
 }
+    tools {
+        maven 'M2_HOME'
+    }
+    
+   
+   
+    stages {
+
+       stage('build') {
+            steps {
+                echo 'hello build'
+                sh 'mvn clean'
+                sh 'mvn install'
+                sh 'mvn package'
+            }
+        }
+        stage('test') {
+            steps {
+                sh 'mvn test'
+            
+            }
+        }
+        stage('build and push docker image') {
+      steps {
+        script {  
+          checkout scm
+          docker.withRegistry('', 'docker_user') {
+          def customImage = docker.build("docker repository/name:${env.BUILD_ID}")
+          def customImage1 = docker.build("isims51461/release-04")      
+          customImage.push()
+          customImage1.push() 
+          }
+    }
+    
+    }
+}
+  
