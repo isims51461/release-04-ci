@@ -30,7 +30,7 @@ pipeline {
         script {  
           checkout scm
           docker.withRegistry('', 'docker_user') {
-          def customImage = docker.build("docker repository/name:${env.BUILD_ID}")
+          def customImage = docker.build("isims51461/release-04:${env.BUILD_ID}")
           def customImage1 = docker.build("isims51461/release-04")      
           customImage.push()
           customImage1.push() 
